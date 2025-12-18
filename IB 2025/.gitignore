@@ -1,0 +1,11 @@
+
+temp_parts/
+temp_processing/
+*.ts
+
+*.mp4
+*.wav
+*.mp3
+*.avi
+*.mkv
+

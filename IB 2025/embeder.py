@@ -115,9 +115,10 @@ class AudioWatermark:
                 processed_samples.extend(chunk)
                 continue
 
-            spectrum = fft(chunk)
+            spectrum = fft(chunk)  # Перевод звука в спектр
             current_bit = int(self.bits[bit_idx % len(self.bits)])
             idx_a, idx_b = slice(self.bin_start, self.bin_mid), slice(self.bin_mid, self.bin_end)
+            # Выбираем два диапазона: Низкие (A) и Высокие (B)
 
             if current_bit == 1:
                 spectrum[idx_a] *= 2.5
@@ -126,7 +127,7 @@ class AudioWatermark:
                 spectrum[idx_a] *= 0.4
                 spectrum[idx_b] *= 2.5
 
-            modified_chunk = np.clip(ifft(spectrum).real, -32768, 32767)
+            modified_chunk = np.clip(ifft(spectrum).real, -32768, 32767) #возвращаем в звук
             processed_samples.extend(modified_chunk.astype(np.int16))
             bit_idx += 1
 
@@ -210,5 +211,15 @@ def process_dual_watermark(input_video, output_video, user_id):
 
 
 if __name__ == "__main__":
-    USER_ID = "34567890"
-    process_dual_watermark('input1.mp4', 'output_protected.mp4', USER_ID)
+    USER_ID = "12345678"
+    process_dual_watermark('test3.mp4', 'output_protected.mp4', USER_ID)
+
+
+
+
+
+
+
+
+
+

@@ -6,57 +6,29 @@ const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
-// Add token to requests and adjust headers for FormData
+// Добавляем токен к каждому запросу
 api.interceptors.request.use(
   (config) => {
-    // Remove default content-type for FormData so browser sets boundary
-    if (config.data instanceof FormData) {
-      delete config.headers['Content-Type'];
-    }
-
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Для FormData не устанавливаем Content-Type - браузер сам поставит с boundary
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+    
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Handle auth errors
+// НЕ делаем автоматический логаут - только логируем ошибки
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const status = error.response?.status;
-    const errorData = error.response?.data;
-    const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/register';
-
-    // Логируем для отладки
-    console.log('API Error:', {
-      status,
-      url: error.config?.url,
-      method: error.config?.method,
-      errorData
-    });
-
-    // Только чистим токен если это РЕАЛЬНАЯ JWT-ошибка (не просто валидация)
-    if ((status === 401 || status === 422) && !isAuthPage) {
-      const errorMsg = errorData?.error || errorData?.msg || '';
-      const isJWTError = errorMsg.includes('token') || 
-                        errorMsg.includes('Authorization') || 
-                        errorMsg.includes('signature') ||
-                        errorMsg.includes('expired') ||
-                        status === 401; // 401 почти всегда auth-проблема
-      
-      if (isJWTError) {
-        console.warn('JWT error detected, clearing auth data');
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        // Перезагружаем страницу, чтобы AuthContext сбросился
-        window.location.href = '/login';
-      }
-    }
-
+    console.error('API Error:', error.response?.status, error.response?.data);
     return Promise.reject(error);
   }
 );
@@ -92,8 +64,7 @@ export const accessAPI = {
 
 // Leak detection API
 export const leakAPI = {
-  detect: (formData) =>
-    api.post('/leaks/detect', formData),
+  detect: (formData) => api.post('/leaks/detect', formData),
   list: () => api.get('/leaks'),
   update: (id, data) => api.put(`/leaks/${id}`, data),
 };

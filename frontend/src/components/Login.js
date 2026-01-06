@@ -17,7 +17,11 @@ const Login = () => {
     const result = await login(username, password);
     
     if (result.success) {
-      navigate('/dashboard', { replace: true });
+      console.log('Login successful, navigating to dashboard');
+      // Небольшая задержка чтобы state успел обновиться
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true });
+      }, 100);
     }
     
     setLoading(false);

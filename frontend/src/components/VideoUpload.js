@@ -48,6 +48,7 @@ const VideoUpload = () => {
     }
 
     setUploading(true);
+    setUploadProgress(0);
 
     const data = new FormData();
     data.append('file', file);
@@ -57,6 +58,7 @@ const VideoUpload = () => {
     data.append('subject', formData.subject);
 
     try {
+      console.log('Starting video upload...');
       await videoAPI.upload(data, (progressEvent) => {
         const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
         setUploadProgress(progress);
@@ -65,14 +67,20 @@ const VideoUpload = () => {
       toast.success('Видео успешно загружено!');
       navigate('/videos');
     } catch (error) {
-      const msg =
-        error.response?.data?.error ||
-        error.response?.data?.message ||
-        error.response?.data?.msg || // flask-jwt-extended errors
-        error.message ||
-        'Ошибка загрузки видео';
-      toast.error(msg);
-      console.error('Upload error:', error.response?.data || error);
+      console.error('Upload error:', error);
+      
+      // Подробная обработка ошибки
+      let errorMessage = 'Ошибка загрузки видео';
+      
+      if (error.response) {
+        const data = error.response.data;
+        errorMessage = data.error || data.msg || data.message || `Ошибка ${error.response.status}`;
+        console.error('Server response:', data);
+      } else if (error.request) {
+        errorMessage = 'Сервер не отвечает. Проверьте подключение.';
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setUploading(false);
       setUploadProgress(0);

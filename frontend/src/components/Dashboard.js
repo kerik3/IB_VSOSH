@@ -8,7 +8,7 @@ const StatCard = ({ icon: Icon, title, value, color }) => (
     <div className="flex items-center justify-between">
       <div>
         <p className="text-gray-500 text-sm font-medium uppercase">{title}</p>
-        <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
+        <p className="text-3xl font-bold text-gray-900 mt-2">{value ?? 0}</p>
       </div>
       <div className={`p-4 rounded-full ${color}`}>
         <Icon className="w-8 h-8 text-white" />
@@ -19,23 +19,25 @@ const StatCard = ({ icon: Icon, title, value, color }) => (
 
 const Dashboard = () => {
   const { user, isTeacher, isStudent, isAdmin } = useAuth();
-  const [stats, setStats] = useState(null);
+  const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await statsAPI.get();
+        setStats(response.data.stats || {});
+      } catch (error) {
+        console.error('Failed to fetch statistics:', error);
+        // Не показываем ошибку пользователю, просто оставляем пустую статистику
+        setStats({});
+      } finally {
+        setLoading(false);
+      }
+    };
+    
     fetchStats();
   }, []);
-
-  const fetchStats = async () => {
-    try {
-      const response = await statsAPI.get();
-      setStats(response.data.stats);
-    } catch (error) {
-      console.error('Failed to fetch statistics:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const renderAdminStats = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -130,10 +132,11 @@ const Dashboard = () => {
     </div>
   );
 
-  if (loading) {
+  // Если нет пользователя - ничего не показываем (ProtectedRoute разберётся)
+  if (!user) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
       </div>
     );
   }
@@ -151,7 +154,11 @@ const Dashboard = () => {
         </p>
       </div>
 
-      {stats && (
+      {loading ? (
+        <div className="flex items-center justify-center h-32">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+        </div>
+      ) : (
         <div>
           {isAdmin && renderAdminStats()}
           {isTeacher && renderTeacherStats()}

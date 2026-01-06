@@ -28,13 +28,33 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
+    const errorData = error.response?.data;
     const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/register';
 
-    // JWT ошибки могут приходить как 401 или 422 (невалидный/просроченный токен)
+    // Логируем для отладки
+    console.log('API Error:', {
+      status,
+      url: error.config?.url,
+      method: error.config?.method,
+      errorData
+    });
+
+    // Только чистим токен если это РЕАЛЬНАЯ JWT-ошибка (не просто валидация)
     if ((status === 401 || status === 422) && !isAuthPage) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      // Дальше ProtectedRoute отправит на /login
+      const errorMsg = errorData?.error || errorData?.msg || '';
+      const isJWTError = errorMsg.includes('token') || 
+                        errorMsg.includes('Authorization') || 
+                        errorMsg.includes('signature') ||
+                        errorMsg.includes('expired') ||
+                        status === 401; // 401 почти всегда auth-проблема
+      
+      if (isJWTError) {
+        console.warn('JWT error detected, clearing auth data');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        // Перезагружаем страницу, чтобы AuthContext сбросился
+        window.location.href = '/login';
+      }
     }
 
     return Promise.reject(error);

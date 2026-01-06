@@ -50,23 +50,34 @@ def role_required(required_role):
         @wraps(fn)
         @jwt_required()
         def wrapper(*args, **kwargs):
-            current_user_id = get_jwt_identity()
-            user = User.query.get(current_user_id)
-            
-            if not user or not user.is_active:
-                return jsonify({'error': 'User not found or inactive'}), 403
-            
-            if user.is_banned:
-                return jsonify({'error': 'User is banned', 'reason': user.ban_reason}), 403
-            
-            if isinstance(required_role, list):
-                if user.role not in [UserRole[r.upper()] for r in required_role]:
-                    return jsonify({'error': 'Insufficient permissions'}), 403
-            else:
-                if user.role != UserRole[required_role.upper()]:
-                    return jsonify({'error': 'Insufficient permissions'}), 403
-            
-            return fn(*args, **kwargs)
+            try:
+                current_user_id = get_jwt_identity()
+                app.logger.info(f"Role check for user ID: {current_user_id}, required role: {required_role}")
+                
+                user = User.query.get(current_user_id)
+                
+                if not user or not user.is_active:
+                    app.logger.warning(f"User {current_user_id} not found or inactive")
+                    return jsonify({'error': 'User not found or inactive'}), 403
+                
+                if user.is_banned:
+                    app.logger.warning(f"User {current_user_id} is banned")
+                    return jsonify({'error': 'User is banned', 'reason': user.ban_reason}), 403
+                
+                if isinstance(required_role, list):
+                    if user.role not in [UserRole[r.upper()] for r in required_role]:
+                        app.logger.warning(f"User {current_user_id} has role {user.role}, required: {required_role}")
+                        return jsonify({'error': 'Insufficient permissions'}), 403
+                else:
+                    if user.role != UserRole[required_role.upper()]:
+                        app.logger.warning(f"User {current_user_id} has role {user.role}, required: {required_role}")
+                        return jsonify({'error': 'Insufficient permissions'}), 403
+                
+                app.logger.info(f"Role check passed for user {current_user_id} ({user.username})")
+                return fn(*args, **kwargs)
+            except Exception as e:
+                app.logger.error(f"Error in role_required decorator: {str(e)}")
+                return jsonify({'error': 'Authorization error', 'details': str(e)}), 401
         return wrapper
     return decorator
 
@@ -223,6 +234,10 @@ def get_video(video_id):
 @role_required(['teacher', 'admin'])
 def upload_video():
     """Upload a new video (teachers only)"""
+    app.logger.info(f"Video upload request from user: {get_jwt_identity()}")
+    app.logger.info(f"Content-Type: {request.content_type}")
+    app.logger.info(f"Files: {list(request.files.keys())}")
+    
     if 'file' not in request.files:
         return jsonify({'error': 'No file provided'}), 400
     
@@ -752,6 +767,37 @@ def get_statistics():
 
 
 # ============================================================================
+# JWT ERROR HANDLERS
+# ============================================================================
+
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+    app.logger.warning(f"Expired token from user: {jwt_payload.get('sub')}")
+    return jsonify({
+        'error': 'Token has expired',
+        'msg': 'The token has expired. Please log in again.'
+    }), 401
+
+
+@jwt.invalid_token_loader
+def invalid_token_callback(error):
+    app.logger.warning(f"Invalid token: {error}")
+    return jsonify({
+        'error': 'Invalid token',
+        'msg': 'Signature verification failed. Please log in again.'
+    }), 422
+
+
+@jwt.unauthorized_loader
+def missing_token_callback(error):
+    app.logger.warning(f"Missing token: {error}")
+    return jsonify({
+        'error': 'Missing authorization',
+        'msg': 'Authorization header is missing.'
+    }), 401
+
+
+# ============================================================================
 # ERROR HANDLERS
 # ============================================================================
 
@@ -763,6 +809,7 @@ def not_found(error):
 @app.errorhandler(500)
 def internal_error(error):
     db.session.rollback()
+    app.logger.error(f"Internal server error: {str(error)}")
     return jsonify({'error': 'Internal server error'}), 500
 
 

@@ -4,14 +4,16 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
-// Add token to requests
+// Add token to requests and adjust headers for FormData
 api.interceptors.request.use(
   (config) => {
+    // Remove default content-type for FormData so browser sets boundary
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -48,9 +50,8 @@ export const authAPI = {
 export const videoAPI = {
   list: () => api.get('/videos'),
   get: (id) => api.get(`/videos/${id}`),
-  upload: (formData, onProgress) => 
+  upload: (formData, onProgress) =>
     api.post('/videos/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
       onUploadProgress: onProgress,
     }),
   update: (id, data) => api.put(`/videos/${id}`, data),
@@ -69,10 +70,8 @@ export const accessAPI = {
 
 // Leak detection API
 export const leakAPI = {
-  detect: (formData) => 
-    api.post('/leaks/detect', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+  detect: (formData) =>
+    api.post('/leaks/detect', formData),
   list: () => api.get('/leaks'),
   update: (id, data) => api.put(`/leaks/${id}`, data),
 };

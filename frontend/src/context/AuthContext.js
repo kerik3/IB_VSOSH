@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { authAPI } from '../services/api';
 import { toast } from 'react-toastify';
 
@@ -13,46 +13,52 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem('token'));
-  const isInitialMount = useRef(true);
+  // Инициализируем user из localStorage если есть
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+  const [loading, setLoading] = useState(() => {
+    // Если есть сохранённый пользователь, не показываем загрузку
+    return !localStorage.getItem('user') && !!localStorage.getItem('token');
+  });
 
+  // Проверяем токен при первой загрузке (если есть токен, но нет user)
   useEffect(() => {
-    // Только при первой загрузке проверяем токен
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      if (token) {
-        fetchCurrentUser();
-      } else {
-        setLoading(false);
-      }
+    const token = localStorage.getItem('token');
+    const savedUser = localStorage.getItem('user');
+    
+    if (token && !savedUser) {
+      fetchCurrentUser();
     }
   }, []);
 
   const fetchCurrentUser = async () => {
     try {
       const response = await authAPI.getCurrentUser();
-      setUser(response.data.user);
+      const userData = response.data.user;
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
     } catch (error) {
       console.error('Не удалось получить данные пользователя:', error);
-      // Тихо очищаем данные без показа уведомления (токен просто истёк)
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      setToken(null);
       setUser(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const login = async (username, password) => {
+  const login = useCallback(async (username, password) => {
     try {
       const response = await authAPI.login({ username, password });
       const { access_token, user: userData } = response.data;
       
+      // Сохраняем в localStorage
       localStorage.setItem('token', access_token);
-      setToken(access_token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      
+      // Обновляем state
       setUser(userData);
       setLoading(false);
       
@@ -63,11 +69,11 @@ export const AuthProvider = ({ children }) => {
       toast.error(message);
       return { success: false };
     }
-  };
+  }, []);
 
-  const register = async (userData) => {
+  const register = useCallback(async (userData) => {
     try {
-      const response = await authAPI.register(userData);
+      await authAPI.register(userData);
       toast.success('Регистрация успешна! Теперь войдите в аккаунт.');
       return true;
     } catch (error) {
@@ -75,15 +81,14 @@ export const AuthProvider = ({ children }) => {
       toast.error(message);
       return false;
     }
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    setToken(null);
     setUser(null);
     toast.info('Вы успешно вышли из аккаунта');
-  };
+  }, []);
 
   const value = {
     user,

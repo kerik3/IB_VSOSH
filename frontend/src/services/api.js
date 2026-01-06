@@ -25,10 +25,13 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // Не перенаправляем на login при ошибках на странице входа/регистрации
+    const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/register';
+    
+    if (error.response?.status === 401 && !isAuthPage) {
+      // Только очищаем токен, редирект произойдёт через ProtectedRoute
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

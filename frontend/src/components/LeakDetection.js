@@ -57,8 +57,13 @@ const LeakDetection = () => {
       toast.success('Утечка обнаружена!');
       fetchLeakReports();
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Ошибка анализа');
-      setResult({ error: error.response?.data?.error || 'Ошибка анализа' });
+      const msg =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message ||
+        'Ошибка анализа';
+      toast.error(msg);
+      setResult({ error: msg });
     } finally {
       setAnalyzing(false);
     }

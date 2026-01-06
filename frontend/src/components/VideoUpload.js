@@ -65,7 +65,12 @@ const VideoUpload = () => {
       toast.success('Видео успешно загружено!');
       navigate('/videos');
     } catch (error) {
-      toast.error('Ошибка загрузки видео');
+      const msg =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message ||
+        'Ошибка загрузки видео';
+      toast.error(msg);
       console.error('Upload error:', error);
     } finally {
       setUploading(false);

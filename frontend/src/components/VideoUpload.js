@@ -68,10 +68,11 @@ const VideoUpload = () => {
       const msg =
         error.response?.data?.error ||
         error.response?.data?.message ||
+        error.response?.data?.msg || // flask-jwt-extended errors
         error.message ||
         'Ошибка загрузки видео';
       toast.error(msg);
-      console.error('Upload error:', error);
+      console.error('Upload error:', error.response?.data || error);
     } finally {
       setUploading(false);
       setUploadProgress(0);

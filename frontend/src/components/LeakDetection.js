@@ -60,10 +60,12 @@ const LeakDetection = () => {
       const msg =
         error.response?.data?.error ||
         error.response?.data?.message ||
+        error.response?.data?.msg || // flask-jwt-extended errors
         error.message ||
         'Ошибка анализа';
       toast.error(msg);
       setResult({ error: msg });
+      console.error('Leak detect error:', error.response?.data || error);
     } finally {
       setAnalyzing(false);
     }

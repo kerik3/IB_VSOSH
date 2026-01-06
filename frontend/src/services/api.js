@@ -27,14 +27,16 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Не перенаправляем на login при ошибках на странице входа/регистрации
+    const status = error.response?.status;
     const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/register';
-    
-    if (error.response?.status === 401 && !isAuthPage) {
-      // Только очищаем токен, редирект произойдёт через ProtectedRoute
+
+    // JWT ошибки могут приходить как 401 или 422 (невалидный/просроченный токен)
+    if ((status === 401 || status === 422) && !isAuthPage) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      // Дальше ProtectedRoute отправит на /login
     }
+
     return Promise.reject(error);
   }
 );

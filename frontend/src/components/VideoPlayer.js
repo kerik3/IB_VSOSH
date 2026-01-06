@@ -25,7 +25,7 @@ const VideoPlayer = () => {
       const url = `${videoAPI.getStreamUrl(id)}?token=${token}`;
       setStreamUrl(url);
     } catch (error) {
-      toast.error('Failed to load video');
+      toast.error('Ошибка загрузки видео');
       navigate('/videos');
     } finally {
       setLoading(false);
@@ -53,7 +53,7 @@ const VideoPlayer = () => {
           className="flex items-center space-x-2 text-white hover:text-primary-400 mb-6 transition-colors"
         >
           <FiArrowLeft className="w-5 h-5" />
-          <span>Back to Videos</span>
+          <span>Назад к видео</span>
         </button>
 
         {/* Video Player */}
@@ -66,7 +66,7 @@ const VideoPlayer = () => {
             onContextMenu={(e) => e.preventDefault()}
           >
             <source src={streamUrl} type="video/mp4" />
-            Your browser does not support the video tag.
+            Ваш браузер не поддерживает видео.
           </video>
         </div>
 
@@ -80,36 +80,36 @@ const VideoPlayer = () => {
             <div className="flex items-center space-x-2 bg-primary-100 px-4 py-2 rounded-lg">
               <FiInfo className="text-primary-600" />
               <span className="text-sm font-semibold text-primary-700">
-                This video is watermarked
+                Видео с водяным знаком
               </span>
             </div>
           </div>
 
           {video.description && (
             <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Description</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Описание</h3>
               <p className="text-gray-700 leading-relaxed">{video.description}</p>
             </div>
           )}
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
             <div>
-              <p className="text-sm text-gray-500">Resolution</p>
-              <p className="font-semibold text-gray-900">{video.resolution || 'N/A'}</p>
+              <p className="text-sm text-gray-500">Разрешение</p>
+              <p className="font-semibold text-gray-900">{video.resolution || 'Н/Д'}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Duration</p>
+              <p className="text-sm text-gray-500">Длительность</p>
               <p className="font-semibold text-gray-900">
-                {video.duration ? `${Math.floor(video.duration / 60)}:${Math.floor(video.duration % 60).toString().padStart(2, '0')}` : 'N/A'}
+                {video.duration ? `${Math.floor(video.duration / 60)}:${Math.floor(video.duration % 60).toString().padStart(2, '0')}` : 'Н/Д'}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Teacher</p>
+              <p className="text-sm text-gray-500">Преподаватель</p>
               <p className="font-semibold text-gray-900">{video.teacher_name}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Subject</p>
-              <p className="font-semibold text-gray-900">{video.subject || 'N/A'}</p>
+              <p className="text-sm text-gray-500">Предмет</p>
+              <p className="font-semibold text-gray-900">{video.subject || 'Н/Д'}</p>
             </div>
           </div>
 
@@ -117,8 +117,8 @@ const VideoPlayer = () => {
             <p className="text-sm text-yellow-800 flex items-start space-x-2">
               <FiInfo className="w-5 h-5 flex-shrink-0 mt-0.5" />
               <span>
-                <strong>Important:</strong> This video contains a unique watermark tied to your account. 
-                Unauthorized sharing or distribution is prohibited and will result in immediate action.
+                <strong>Важно:</strong> Это видео содержит уникальный водяной знак, привязанный к вашему аккаунту. 
+                Несанкционированное распространение запрещено и повлечёт за собой блокировку аккаунта.
               </span>
             </p>
           </div>

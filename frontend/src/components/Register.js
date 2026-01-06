@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FiUser, FiMail, FiLock, FiUserCheck } from 'react-icons/fi';
+import { toast } from 'react-toastify';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -27,7 +28,7 @@ const Register = () => {
     e.preventDefault();
     
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!');
+      toast.error('Пароли не совпадают!');
       return;
     }
     
@@ -48,10 +49,10 @@ const Register = () => {
       <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-2xl">
         <div>
           <h2 className="mt-6 text-center text-4xl font-extrabold text-gray-900">
-            Create Account
+            Регистрация
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Join VVM School Platform
+            Присоединяйтесь к VVM Школе
           </p>
         </div>
         
@@ -67,7 +68,7 @@ const Register = () => {
                   type="text"
                   required
                   className="appearance-none relative block w-full pl-10 px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  placeholder="Username"
+                  placeholder="Логин"
                   value={formData.username}
                   onChange={handleChange}
                 />
@@ -84,7 +85,7 @@ const Register = () => {
                   type="text"
                   required
                   className="appearance-none relative block w-full pl-10 px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  placeholder="Full Name"
+                  placeholder="Полное имя"
                   value={formData.full_name}
                   onChange={handleChange}
                 />
@@ -101,7 +102,7 @@ const Register = () => {
                   type="email"
                   required
                   className="appearance-none relative block w-full pl-10 px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  placeholder="Email Address"
+                  placeholder="Email"
                   value={formData.email}
                   onChange={handleChange}
                 />
@@ -118,7 +119,7 @@ const Register = () => {
                   type="password"
                   required
                   className="appearance-none relative block w-full pl-10 px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  placeholder="Password"
+                  placeholder="Пароль"
                   value={formData.password}
                   onChange={handleChange}
                 />
@@ -135,7 +136,7 @@ const Register = () => {
                   type="password"
                   required
                   className="appearance-none relative block w-full pl-10 px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  placeholder="Confirm Password"
+                  placeholder="Подтвердите пароль"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                 />
@@ -149,8 +150,8 @@ const Register = () => {
                 value={formData.role}
                 onChange={handleChange}
               >
-                <option value="student">Student</option>
-                <option value="teacher">Teacher</option>
+                <option value="student">Ученик</option>
+                <option value="teacher">Преподаватель</option>
               </select>
             </div>
           </div>
@@ -161,7 +162,7 @@ const Register = () => {
               disabled={loading}
               className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 transition-colors"
             >
-              {loading ? 'Creating account...' : 'Create Account'}
+              {loading ? 'Регистрация...' : 'Зарегистрироваться'}
             </button>
           </div>
           
@@ -170,7 +171,7 @@ const Register = () => {
               to="/login"
               className="font-medium text-primary-600 hover:text-primary-500"
             >
-              Already have an account? Sign in
+              Уже есть аккаунт? Войти
             </Link>
           </div>
         </form>

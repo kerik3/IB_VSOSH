@@ -20,7 +20,7 @@ const LeakDetection = () => {
       const response = await leakAPI.list();
       setReports(response.data.leak_reports);
     } catch (error) {
-      toast.error('Failed to fetch leak reports');
+      toast.error('Ошибка загрузки отчётов');
     } finally {
       setLoading(false);
     }
@@ -41,7 +41,7 @@ const LeakDetection = () => {
 
   const handleAnalyze = async () => {
     if (!file) {
-      toast.error('Please select a video file');
+      toast.error('Выберите видеофайл');
       return;
     }
 
@@ -54,11 +54,11 @@ const LeakDetection = () => {
     try {
       const response = await leakAPI.detect(formData);
       setResult(response.data);
-      toast.success('Leak detected successfully!');
+      toast.success('Утечка обнаружена!');
       fetchLeakReports();
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Failed to detect leak');
-      setResult({ error: error.response?.data?.error || 'Detection failed' });
+      toast.error(error.response?.data?.error || 'Ошибка анализа');
+      setResult({ error: error.response?.data?.error || 'Ошибка анализа' });
     } finally {
       setAnalyzing(false);
     }
@@ -67,10 +67,10 @@ const LeakDetection = () => {
   const handleUpdateReport = async (reportId, status, banUser = false) => {
     try {
       await leakAPI.update(reportId, { status, ban_user: banUser });
-      toast.success('Report updated successfully');
+      toast.success('Отчёт обновлён');
       fetchLeakReports();
     } catch (error) {
-      toast.error('Failed to update report');
+      toast.error('Ошибка обновления отчёта');
     }
   };
 
@@ -84,21 +84,31 @@ const LeakDetection = () => {
     }
   };
 
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 'pending': return 'Ожидает';
+      case 'investigating': return 'Расследуется';
+      case 'confirmed': return 'Подтверждено';
+      case 'false_positive': return 'Ложное срабатывание';
+      default: return status;
+    }
+  };
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 flex items-center space-x-3">
           <FiAlertTriangle className="text-red-600" />
-          <span>Leak Detection</span>
+          <span>Детекция утечек</span>
         </h1>
         <p className="text-gray-600 mt-2">
-          Upload a suspicious video to detect the watermark and identify the source
+          Загрузите подозрительное видео для определения источника утечки
         </p>
       </div>
 
       {/* Upload and Analysis Section */}
       <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Analyze Video</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Анализ видео</h2>
         
         {!file ? (
           <div
@@ -112,10 +122,10 @@ const LeakDetection = () => {
             <input {...getInputProps()} />
             <FiUpload className="w-16 h-16 mx-auto text-gray-400 mb-4" />
             <p className="text-lg font-semibold text-gray-700 mb-2">
-              {isDragActive ? 'Drop the video here' : 'Upload Suspected Leaked Video'}
+              {isDragActive ? 'Отпустите файл здесь' : 'Загрузите подозрительное видео'}
             </p>
             <p className="text-sm text-gray-500">
-              Drag & drop or click to browse
+              Перетащите или нажмите для выбора
             </p>
           </div>
         ) : (
@@ -125,7 +135,7 @@ const LeakDetection = () => {
                 <div>
                   <p className="font-semibold text-gray-900">{file.name}</p>
                   <p className="text-sm text-gray-600">
-                    {(file.size / (1024 * 1024)).toFixed(2)} MB
+                    {(file.size / (1024 * 1024)).toFixed(2)} МБ
                   </p>
                 </div>
                 <button
@@ -142,7 +152,7 @@ const LeakDetection = () => {
               disabled={analyzing}
               className="w-full py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 font-semibold transition-colors"
             >
-              {analyzing ? 'Analyzing...' : 'Analyze Watermark'}
+              {analyzing ? 'Анализ...' : 'Анализировать водяной знак'}
             </button>
           </div>
         )}
@@ -154,7 +164,7 @@ const LeakDetection = () => {
               <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6">
                 <div className="flex items-center space-x-3 mb-2">
                   <FiX className="w-6 h-6 text-red-600" />
-                  <h3 className="text-lg font-bold text-red-900">Detection Failed</h3>
+                  <h3 className="text-lg font-bold text-red-900">Анализ не удался</h3>
                 </div>
                 <p className="text-red-700">{result.error}</p>
               </div>
@@ -162,50 +172,53 @@ const LeakDetection = () => {
               <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6">
                 <div className="flex items-center space-x-3 mb-4">
                   <FiCheck className="w-6 h-6 text-green-600" />
-                  <h3 className="text-lg font-bold text-green-900">Leak Detected!</h3>
+                  <h3 className="text-lg font-bold text-green-900">Утечка обнаружена!</h3>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <p className="text-sm text-gray-600">Suspected User:</p>
+                    <p className="text-sm text-gray-600">Подозреваемый:</p>
                     <p className="font-bold text-gray-900">{result.suspected_user.full_name}</p>
                     <p className="text-sm text-gray-500">{result.suspected_user.email}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Video:</p>
+                    <p className="text-sm text-gray-600">Видео:</p>
                     <p className="font-bold text-gray-900">{result.video.title}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Watermark ID:</p>
+                    <p className="text-sm text-gray-600">ID водяного знака:</p>
                     <p className="font-mono font-bold text-gray-900">{result.leak_report.watermark_id}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Detection Method:</p>
+                    <p className="text-sm text-gray-600">Метод обнаружения:</p>
                     <p className="font-bold text-gray-900 capitalize">
-                      {result.leak_report.detection_method}
+                      {result.leak_report.detection_method === 'manual' ? 'Ручной' : result.leak_report.detection_method}
                     </p>
                   </div>
                 </div>
 
                 {result.extraction_details && (
                   <div className="mt-4 p-4 bg-white rounded-lg">
-                    <p className="font-semibold text-gray-900 mb-2">Extraction Details:</p>
+                    <p className="font-semibold text-gray-900 mb-2">Детали извлечения:</p>
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>
-                        <span className="text-gray-600">Video Match:</span>
+                        <span className="text-gray-600">Видео:</span>
                         <span className={`ml-2 ${result.extraction_details.video.success ? 'text-green-600' : 'text-red-600'}`}>
-                          {result.extraction_details.video.success ? '✓ Success' : '✗ Failed'}
+                          {result.extraction_details.video.success ? '✓ Найдено' : '✗ Не найдено'}
                         </span>
                       </div>
                       <div>
-                        <span className="text-gray-600">Audio Match:</span>
+                        <span className="text-gray-600">Аудио:</span>
                         <span className={`ml-2 ${result.extraction_details.audio.success ? 'text-green-600' : 'text-red-600'}`}>
-                          {result.extraction_details.audio.success ? '✓ Success' : '✗ Failed'}
+                          {result.extraction_details.audio.success ? '✓ Найдено' : '✗ Не найдено'}
                         </span>
                       </div>
                       <div className="col-span-2">
-                        <span className="text-gray-600">Confidence:</span>
-                        <span className="ml-2 font-semibold capitalize">{result.extraction_details.confidence}</span>
+                        <span className="text-gray-600">Уверенность:</span>
+                        <span className="ml-2 font-semibold">
+                          {result.extraction_details.confidence === 'high' ? 'Высокая' : 
+                           result.extraction_details.confidence === 'medium' ? 'Средняя' : 'Низкая'}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -218,7 +231,7 @@ const LeakDetection = () => {
 
       {/* Leak Reports Table */}
       <div className="bg-white rounded-xl shadow-lg p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Leak Reports</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Отчёты об утечках</h2>
         
         {loading ? (
           <div className="text-center py-8">
@@ -227,7 +240,7 @@ const LeakDetection = () => {
         ) : reports.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <FiEye className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-            <p>No leak reports yet</p>
+            <p>Отчётов об утечках пока нет</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -235,12 +248,12 @@ const LeakDetection = () => {
               <thead>
                 <tr className="border-b-2 border-gray-200">
                   <th className="text-left py-3 px-4 font-semibold text-gray-700">ID</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Video</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Suspected User</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Watermark ID</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Date</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Видео</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Подозреваемый</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Водяной знак</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Статус</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Дата</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Действия</th>
                 </tr>
               </thead>
               <tbody>
@@ -252,11 +265,11 @@ const LeakDetection = () => {
                     <td className="py-3 px-4 font-mono text-sm">{report.watermark_id}</td>
                     <td className="py-3 px-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(report.status)}`}>
-                        {report.status}
+                        {getStatusLabel(report.status)}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-sm">
-                      {new Date(report.reported_at).toLocaleDateString()}
+                      {new Date(report.reported_at).toLocaleDateString('ru-RU')}
                     </td>
                     <td className="py-3 px-4">
                       {report.status === 'pending' && (
@@ -264,16 +277,16 @@ const LeakDetection = () => {
                           <button
                             onClick={() => handleUpdateReport(report.id, 'confirmed', true)}
                             className="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600"
-                            title="Confirm and ban user"
+                            title="Подтвердить и заблокировать"
                           >
-                            Confirm & Ban
+                            Подтвердить и бан
                           </button>
                           <button
                             onClick={() => handleUpdateReport(report.id, 'false_positive')}
                             className="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600"
-                            title="Mark as false positive"
+                            title="Отметить как ложное"
                           >
-                            False Positive
+                            Ложное
                           </button>
                         </div>
                       )}

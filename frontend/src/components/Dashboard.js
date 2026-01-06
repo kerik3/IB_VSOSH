@@ -41,49 +41,49 @@ const Dashboard = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <StatCard
         icon={FiUsers}
-        title="Total Users"
+        title="Всего пользователей"
         value={stats.total_users}
         color="bg-blue-500"
       />
       <StatCard
         icon={FiVideo}
-        title="Total Videos"
+        title="Всего видео"
         value={stats.total_videos}
         color="bg-green-500"
       />
       <StatCard
         icon={FiShield}
-        title="Watermarked"
+        title="С водяным знаком"
         value={stats.total_watermarked}
         color="bg-purple-500"
       />
       <StatCard
         icon={FiAlertTriangle}
-        title="Leak Reports"
+        title="Утечки"
         value={stats.total_leaks}
         color="bg-red-500"
       />
       <StatCard
         icon={FiUsers}
-        title="Students"
+        title="Учеников"
         value={stats.total_students}
         color="bg-indigo-500"
       />
       <StatCard
         icon={FiUsers}
-        title="Teachers"
+        title="Преподавателей"
         value={stats.total_teachers}
         color="bg-cyan-500"
       />
       <StatCard
         icon={FiAlertTriangle}
-        title="Pending Leaks"
+        title="Ожидают проверки"
         value={stats.pending_leaks}
         color="bg-yellow-500"
       />
       <StatCard
         icon={FiAlertTriangle}
-        title="Confirmed Leaks"
+        title="Подтверждённые утечки"
         value={stats.confirmed_leaks}
         color="bg-red-600"
       />
@@ -94,19 +94,19 @@ const Dashboard = () => {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <StatCard
         icon={FiVideo}
-        title="Uploaded Videos"
+        title="Загружено видео"
         value={stats.uploaded_videos}
         color="bg-blue-500"
       />
       <StatCard
         icon={FiUsers}
-        title="Total Students"
+        title="Учеников"
         value={stats.total_students}
         color="bg-green-500"
       />
       <StatCard
         icon={FiShield}
-        title="Total Views"
+        title="Просмотров"
         value={stats.total_views}
         color="bg-purple-500"
       />
@@ -117,13 +117,13 @@ const Dashboard = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <StatCard
         icon={FiVideo}
-        title="Available Videos"
+        title="Доступно видео"
         value={stats.accessible_videos}
         color="bg-blue-500"
       />
       <StatCard
         icon={FiShield}
-        title="Watched Videos"
+        title="Просмотрено"
         value={stats.watched_videos}
         color="bg-green-500"
       />
@@ -142,12 +142,12 @@ const Dashboard = () => {
     <div className="p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">
-          Welcome back, {user.full_name}!
+          С возвращением, {user.full_name}!
         </h1>
         <p className="text-gray-600 mt-2">
-          {isAdmin && "Manage your platform from this dashboard"}
-          {isTeacher && "Manage your videos and students"}
-          {isStudent && "Access your learning materials"}
+          {isAdmin && "Управляйте платформой из этой панели"}
+          {isTeacher && "Управляйте своими видео и учениками"}
+          {isStudent && "Доступ к учебным материалам"}
         </p>
       </div>
 
@@ -160,7 +160,7 @@ const Dashboard = () => {
       )}
 
       <div className="mt-8 bg-white rounded-xl shadow-lg p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Быстрые действия</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {(isTeacher || isAdmin) && (
             <>
@@ -169,8 +169,8 @@ const Dashboard = () => {
                 className="p-4 border-2 border-primary-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors text-center"
               >
                 <FiVideo className="w-8 h-8 mx-auto text-primary-600 mb-2" />
-                <h3 className="font-semibold text-gray-900">Manage Videos</h3>
-                <p className="text-sm text-gray-600 mt-1">Upload and manage your content</p>
+                <h3 className="font-semibold text-gray-900">Управление видео</h3>
+                <p className="text-sm text-gray-600 mt-1">Загружайте и управляйте контентом</p>
               </a>
               
               <a
@@ -178,8 +178,8 @@ const Dashboard = () => {
                 className="p-4 border-2 border-red-200 rounded-lg hover:border-red-500 hover:bg-red-50 transition-colors text-center"
               >
                 <FiAlertTriangle className="w-8 h-8 mx-auto text-red-600 mb-2" />
-                <h3 className="font-semibold text-gray-900">Leak Detection</h3>
-                <p className="text-sm text-gray-600 mt-1">Detect and report leaks</p>
+                <h3 className="font-semibold text-gray-900">Детекция утечек</h3>
+                <p className="text-sm text-gray-600 mt-1">Обнаружение и отчёты об утечках</p>
               </a>
             </>
           )}
@@ -190,8 +190,8 @@ const Dashboard = () => {
               className="p-4 border-2 border-primary-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors text-center"
             >
               <FiVideo className="w-8 h-8 mx-auto text-primary-600 mb-2" />
-              <h3 className="font-semibold text-gray-900">My Videos</h3>
-              <p className="text-sm text-gray-600 mt-1">Access your learning materials</p>
+              <h3 className="font-semibold text-gray-900">Мои видео</h3>
+              <p className="text-sm text-gray-600 mt-1">Доступ к учебным материалам</p>
             </a>
           )}
           
@@ -201,8 +201,8 @@ const Dashboard = () => {
               className="p-4 border-2 border-green-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition-colors text-center"
             >
               <FiUsers className="w-8 h-8 mx-auto text-green-600 mb-2" />
-              <h3 className="font-semibold text-gray-900">Manage Users</h3>
-              <p className="text-sm text-gray-600 mt-1">User administration</p>
+              <h3 className="font-semibold text-gray-900">Пользователи</h3>
+              <p className="text-sm text-gray-600 mt-1">Управление пользователями</p>
             </a>
           )}
         </div>

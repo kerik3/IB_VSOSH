@@ -17,11 +17,20 @@ const Layout = ({ children }) => {
     navigate('/login');
   };
 
+  const getRoleLabel = (role) => {
+    switch(role) {
+      case 'admin': return 'Администратор';
+      case 'teacher': return 'Преподаватель';
+      case 'student': return 'Ученик';
+      default: return role;
+    }
+  };
+
   const menuItems = [
-    { path: '/dashboard', icon: FiHome, label: 'Dashboard', roles: ['all'] },
-    { path: '/videos', icon: FiVideo, label: 'Videos', roles: ['all'] },
-    { path: '/leak-detection', icon: FiAlertTriangle, label: 'Leak Detection', roles: ['teacher', 'admin'] },
-    { path: '/users', icon: FiUsers, label: 'Users', roles: ['admin'] },
+    { path: '/dashboard', icon: FiHome, label: 'Главная', roles: ['all'] },
+    { path: '/videos', icon: FiVideo, label: 'Видео', roles: ['all'] },
+    { path: '/leak-detection', icon: FiAlertTriangle, label: 'Детекция утечек', roles: ['teacher', 'admin'] },
+    { path: '/users', icon: FiUsers, label: 'Пользователи', roles: ['admin'] },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -53,8 +62,8 @@ const Layout = ({ children }) => {
                   <span className="text-white font-bold text-xl">V</span>
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-gray-900">VVM School</h1>
-                  <p className="text-xs text-gray-500">Secure Learning Platform</p>
+                  <h1 className="text-xl font-bold text-gray-900">VVM Школа</h1>
+                  <p className="text-xs text-gray-500">Защищённая платформа</p>
                 </div>
               </Link>
             </div>
@@ -68,7 +77,7 @@ const Layout = ({ children }) => {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-900">{user?.full_name}</p>
-                  <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
+                  <p className="text-xs text-gray-500">{getRoleLabel(user?.role)}</p>
                 </div>
               </div>
 
@@ -77,7 +86,7 @@ const Layout = ({ children }) => {
                 className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
               >
                 <FiLogOut className="w-5 h-5" />
-                <span className="hidden md:inline">Logout</span>
+                <span className="hidden md:inline">Выйти</span>
               </button>
             </div>
           </div>

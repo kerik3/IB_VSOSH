@@ -5,10 +5,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    # ФИКСИРОВАННЫЕ ключи - не меняйте, иначе все токены станут невалидными!
-    SECRET_KEY = 'vvm-school-secret-key-2024-production'
-    JWT_SECRET_KEY = 'vvm-school-jwt-secret-key-2024-production'
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=7)  # 7 дней вместо 24 часов
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-please-change'
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'jwt-secret-key-please-change'
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
     
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///vvm_school.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False

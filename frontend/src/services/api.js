@@ -24,31 +24,11 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Обработка ошибок - при invalid token очищаем и перелогиниваем
+// НЕ делаем автоматический логаут - только логируем ошибки
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const status = error.response?.status;
-    const errorMsg = error.response?.data?.error || error.response?.data?.msg || '';
-    
-    console.error('API Error:', status, error.response?.data);
-    
-    // Если токен невалидный или истёк - очищаем и перенаправляем на логин
-    if (status === 401 || status === 422) {
-      const isTokenError = errorMsg.toLowerCase().includes('token') ||
-                          errorMsg.toLowerCase().includes('signature') ||
-                          errorMsg.toLowerCase().includes('expired') ||
-                          errorMsg.toLowerCase().includes('authorization');
-      
-      if (isTokenError && window.location.pathname !== '/login') {
-        console.warn('Token invalid, clearing session and redirecting to login');
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
-        return Promise.reject(error);
-      }
-    }
-    
+    console.error('API Error:', error.response?.status, error.response?.data);
     return Promise.reject(error);
   }
 );

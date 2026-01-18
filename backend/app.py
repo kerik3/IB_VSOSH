@@ -676,10 +676,16 @@ def update_leak_report(report_id):
 # ============================================================================
 
 @app.route('/api/users', methods=['GET'])
-@role_required('admin')
+@role_required(['admin', 'teacher'])
 def list_users():
-    """List all users (admin only)"""
-    role_filter = request.args.get('role')
+    """List all users (admin only, teachers can see students)"""
+    user = get_current_user()
+    
+    if user.role == UserRole.TEACHER:
+        # Teachers can only list students
+        role_filter = 'student'
+    else:
+        role_filter = request.args.get('role')
     
     query = User.query
     if role_filter:

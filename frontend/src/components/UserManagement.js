@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { userAPI } from '../services/api';
 import { toast } from 'react-toastify';
 import { FiUsers, FiShield, FiAlertCircle } from 'react-icons/fi';
@@ -8,11 +8,7 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
 
-  useEffect(() => {
-    fetchUsers();
-  }, [filter]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const response = await userAPI.list(filter === 'all' ? null : filter);
       setUsers(response.data.users);
@@ -21,7 +17,11 @@ const UserManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const handleBan = async (userId, userName) => {
     const reason = prompt(`Введите причину блокировки ${userName}:`);
@@ -58,7 +58,7 @@ const UserManagement = () => {
   };
 
   const getRoleLabel = (role) => {
-    switch(role) {
+    switch (role) {
       case 'admin': return 'Админ';
       case 'teacher': return 'Преподаватель';
       case 'student': return 'Ученик';
@@ -67,7 +67,7 @@ const UserManagement = () => {
   };
 
   const getFilterLabel = (f) => {
-    switch(f) {
+    switch (f) {
       case 'all': return 'Все';
       case 'student': return 'Ученики';
       case 'teacher': return 'Преподаватели';
@@ -101,11 +101,10 @@ const UserManagement = () => {
             <button
               key={role}
               onClick={() => setFilter(role)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filter === role
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${filter === role
                   ? 'bg-primary-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+                }`}
             >
               {getFilterLabel(role)}
             </button>

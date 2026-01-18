@@ -11,6 +11,7 @@ import Dashboard from './components/Dashboard';
 import VideoList from './components/VideoList';
 import VideoUpload from './components/VideoUpload';
 import VideoPlayer from './components/VideoPlayer';
+import VideoAccessManagement from './components/VideoAccessManagement';
 import LeakDetection from './components/LeakDetection';
 import UserManagement from './components/UserManagement';
 
@@ -104,6 +105,15 @@ function App() {
               element={
                 <ProtectedRoute roles={['teacher', 'admin']}>
                   <VideoUpload />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/videos/:id/access"
+              element={
+                <ProtectedRoute roles={['teacher', 'admin']}>
+                  <VideoAccessManagement />
                 </ProtectedRoute>
               }
             />

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { videoAPI } from '../services/api';
 import { toast } from 'react-toastify';
@@ -11,15 +11,11 @@ const VideoPlayer = () => {
   const [loading, setLoading] = useState(true);
   const [streamUrl, setStreamUrl] = useState(null);
 
-  useEffect(() => {
-    fetchVideo();
-  }, [id]);
-
-  const fetchVideo = async () => {
+  const fetchVideo = useCallback(async () => {
     try {
       const response = await videoAPI.get(id);
       setVideo(response.data.video);
-      
+
       // Get stream URL with auth token
       const token = localStorage.getItem('token');
       const url = `${videoAPI.getStreamUrl(id)}?token=${token}`;
@@ -30,7 +26,11 @@ const VideoPlayer = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, navigate]);
+
+  useEffect(() => {
+    fetchVideo();
+  }, [fetchVideo]);
 
   if (loading) {
     return (
@@ -117,7 +117,7 @@ const VideoPlayer = () => {
             <p className="text-sm text-yellow-800 flex items-start space-x-2">
               <FiInfo className="w-5 h-5 flex-shrink-0 mt-0.5" />
               <span>
-                <strong>Важно:</strong> Это видео содержит уникальный водяной знак, привязанный к вашему аккаунту. 
+                <strong>Важно:</strong> Это видео содержит уникальный водяной знак, привязанный к вашему аккаунту.
                 Несанкционированное распространение запрещено и повлечёт за собой блокировку аккаунта.
               </span>
             </p>

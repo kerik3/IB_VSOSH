@@ -13,12 +13,12 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     // Для FormData не устанавливаем Content-Type - браузер сам поставит с boundary
     if (config.data instanceof FormData) {
       delete config.headers['Content-Type'];
     }
-    
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -29,6 +29,22 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     console.error('API Error:', error.response?.status, error.response?.data);
+
+    // Auto-logout on token issues
+    if (error.response && (error.response.status === 401 || error.response.status === 422)) {
+      const token = localStorage.getItem('token');
+      if (token) {
+        console.warn('Invalid token detected, logging out...');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+
+        // Delay redirect to allow user to read potentially logged errors or avoid rapid loops
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+      }
+    }
+
     return Promise.reject(error);
   }
 );
@@ -56,9 +72,9 @@ export const videoAPI = {
 // Access API
 export const accessAPI = {
   getVideoAccess: (videoId) => api.get(`/videos/${videoId}/access`),
-  grantAccess: (videoId, studentIds) => 
+  grantAccess: (videoId, studentIds) =>
     api.post(`/videos/${videoId}/access`, { student_ids: studentIds }),
-  revokeAccess: (videoId, studentId) => 
+  revokeAccess: (videoId, studentId) =>
     api.delete(`/videos/${videoId}/access/${studentId}`),
 };
 

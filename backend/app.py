@@ -52,6 +52,13 @@ def role_required(required_role):
         def wrapper(*args, **kwargs):
             try:
                 current_user_id = get_jwt_identity()
+                # Ensure user_id is integer
+                try:
+                    current_user_id = int(str(current_user_id))
+                except (ValueError, TypeError):
+                    app.logger.error(f"Invalid user ID format in token: {current_user_id}")
+                    return jsonify({'error': 'Invalid token data'}), 401
+
                 app.logger.info(f"Role check for user ID: {current_user_id}, required role: {required_role}")
                 
                 user = User.query.get(current_user_id)
@@ -85,6 +92,10 @@ def role_required(required_role):
 def get_current_user():
     """Get current authenticated user"""
     user_id = get_jwt_identity()
+    try:
+        user_id = int(str(user_id))
+    except (ValueError, TypeError):
+        return None
     return User.query.get(user_id)
 
 
@@ -157,7 +168,7 @@ def login():
     db.session.commit()
     
     # Create access token
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
     
     return jsonify({
         'access_token': access_token,
@@ -781,10 +792,12 @@ def expired_token_callback(jwt_header, jwt_payload):
 
 @jwt.invalid_token_loader
 def invalid_token_callback(error):
-    app.logger.warning(f"Invalid token: {error}")
+    auth_header = request.headers.get('Authorization', 'Missing')
+    app.logger.warning(f"Invalid token: {error}, Header: {auth_header}")
     return jsonify({
         'error': 'Invalid token',
-        'msg': 'Signature verification failed. Please log in again.'
+        'msg': 'Signature verification failed. Please log in again.',
+        'received_header': auth_header
     }), 422
 
 

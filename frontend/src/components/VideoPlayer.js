@@ -64,8 +64,8 @@ const VideoPlayer = () => {
             style={{ maxHeight: '70vh' }}
             controlsList="nodownload"
             onContextMenu={(e) => e.preventDefault()}
+            src={streamUrl}
           >
-            <source src={streamUrl} type="video/mp4" />
             Ваш браузер не поддерживает видео.
           </video>
         </div>

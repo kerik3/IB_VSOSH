@@ -210,16 +210,18 @@ class AudioWatermark:
             
             logger.info(f"Processing audio: {len(samples)} samples")
             
-            processed_samples = []
+            # Use a copy for output to avoid list overhead (memory optimization)
+            output_samples = samples.copy()
+            
             bit_idx = 0
             chunks_processed = 0
             
+            # Process chunks
             for i in range(0, len(samples) - self.chunk_size, self.chunk_size):
                 chunk = samples[i: i + self.chunk_size]
                 
                 # Skip silent chunks
                 if np.max(np.abs(chunk)) < self.silence_thresh:
-                    processed_samples.extend(chunk)
                     continue
                 
                 # FFT: convert to frequency domain
@@ -240,14 +242,15 @@ class AudioWatermark:
                 
                 # IFFT: convert back to time domain
                 modified_chunk = np.clip(ifft(spectrum).real, -32768, 32767)
-                processed_samples.extend(modified_chunk.astype(np.int16))
+                output_samples[i: i + self.chunk_size] = modified_chunk.astype(np.int16)
+                
                 bit_idx += 1
                 chunks_processed += 1
             
             logger.info(f"Processed {chunks_processed} audio chunks")
             
             # Write output
-            wavfile.write(output_wav, 44100, np.array(processed_samples, dtype=np.int16))
+            wavfile.write(output_wav, 44100, output_samples)
             
         except Exception as e:
             raise VideoWatermarkError(f"Audio watermarking failed: {e}")
@@ -294,12 +297,9 @@ def process_dual_watermark(
     if not os.path.exists(input_video):
         raise VideoWatermarkError(f"Input video not found: {input_video}")
     
-    # Generate secure watermark ID if video_id provided
-    if video_id:
-        watermark_id = generate_secure_id(user_id, video_id)
-        logger.info(f"Generated secure watermark ID: {watermark_id}")
-    else:
-        watermark_id = user_id
+    # Use user_id directly as watermark_id for transparency
+    watermark_id = user_id
+    logger.info(f"Using watermark ID: {watermark_id}")
     
     try:
         ensure_dir(WatermarkConfig.TEMP_DIR)

@@ -468,17 +468,29 @@ def stream_video(video_id):
             app.logger.error(f"Watermarking failed: {e}")
             return jsonify({'error': 'Failed to process video'}), 500
     
-    watermarked.last_accessed = datetime.utcnow()
-    watermarked.access_count += 1
-    
-    view_log = VideoViewLog(
-        user_id=user.id,
-        video_id=video_id,
-        ip_address=request.remote_addr,
-        user_agent=request.headers.get('User-Agent')
-    )
-    db.session.add(view_log)
-    db.session.commit()
+    # Only log view if it's the start of the video (to avoid logging every chunk)
+    range_header = request.headers.get('Range', None)
+    should_log = True
+    if range_header:
+        try:
+            byte_start = int(range_header.replace('bytes=', '').split('-')[0])
+            if byte_start > 0:
+                should_log = False
+        except (ValueError, IndexError):
+            pass
+
+    if should_log:
+        watermarked.last_accessed = datetime.utcnow()
+        watermarked.access_count += 1
+        
+        view_log = VideoViewLog(
+            user_id=user.id,
+            video_id=video_id,
+            ip_address=request.remote_addr,
+            user_agent=request.headers.get('User-Agent')
+        )
+        db.session.add(view_log)
+        db.session.commit()
     
     return send_file(
         watermarked.file_path,

@@ -124,6 +124,11 @@ class Video(db.Model):
         if include_stats:
             data['watermarked_count'] = self.watermarked_versions.count()
             data['access_grants_count'] = self.access_grants.filter_by(is_active=True).count()
+            
+            # Calculate total views
+            from sqlalchemy import func
+            total_views = db.session.query(func.sum(WatermarkedVideo.access_count)).filter_by(video_id=self.id).scalar()
+            data['total_views'] = total_views if total_views else 0
         
         return data
     

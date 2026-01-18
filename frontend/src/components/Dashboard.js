@@ -2,9 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { statsAPI } from '../services/api';
 import { FiVideo, FiUsers, FiAlertTriangle, FiShield } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
-const StatCard = ({ icon: Icon, title, value, color }) => (
-  <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+const StatCard = ({ icon: Icon, title, value, color, onClick }) => (
+  <div
+    onClick={onClick}
+    className={`bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow ${onClick ? 'cursor-pointer transform hover:-translate-y-1 transition-all' : ''}`}
+  >
     <div className="flex items-center justify-between">
       <div>
         <p className="text-gray-500 text-sm font-medium uppercase">{title}</p>
@@ -19,6 +23,7 @@ const StatCard = ({ icon: Icon, title, value, color }) => (
 
 const Dashboard = () => {
   const { user, isTeacher, isStudent, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
 
@@ -35,7 +40,7 @@ const Dashboard = () => {
         setLoading(false);
       }
     };
-    
+
     fetchStats();
   }, []);
 
@@ -99,12 +104,14 @@ const Dashboard = () => {
         title="Загружено видео"
         value={stats.uploaded_videos}
         color="bg-blue-500"
+        onClick={() => navigate('/videos')}
       />
       <StatCard
         icon={FiUsers}
         title="Учеников"
         value={stats.total_students}
         color="bg-green-500"
+        onClick={() => navigate('/users')}
       />
       <StatCard
         icon={FiShield}
@@ -179,7 +186,7 @@ const Dashboard = () => {
                 <h3 className="font-semibold text-gray-900">Управление видео</h3>
                 <p className="text-sm text-gray-600 mt-1">Загружайте и управляйте контентом</p>
               </a>
-              
+
               <a
                 href="/leak-detection"
                 className="p-4 border-2 border-red-200 rounded-lg hover:border-red-500 hover:bg-red-50 transition-colors text-center"
@@ -190,7 +197,7 @@ const Dashboard = () => {
               </a>
             </>
           )}
-          
+
           {isStudent && (
             <a
               href="/videos"
@@ -201,7 +208,7 @@ const Dashboard = () => {
               <p className="text-sm text-gray-600 mt-1">Доступ к учебным материалам</p>
             </a>
           )}
-          
+
           {isAdmin && (
             <a
               href="/users"

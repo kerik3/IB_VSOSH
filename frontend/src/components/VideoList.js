@@ -21,7 +21,7 @@ const VideoCard = ({ video, onDelete, onEdit, onManageAccess, onView, isTeacher 
   };
 
   const getStatusLabel = (status) => {
-    switch(status) {
+    switch (status) {
       case 'ready': return 'Готово';
       case 'pending': return 'Ожидание';
       case 'processing': return 'Обработка';
@@ -61,6 +61,10 @@ const VideoCard = ({ video, onDelete, onEdit, onManageAccess, onView, isTeacher 
         <div>
           <span className="text-gray-500">Длительность:</span>
           <span className="font-semibold ml-2">{formatDuration(video.duration)}</span>
+        </div>
+        <div>
+          <span className="text-gray-500">Просмотры:</span>
+          <span className="font-semibold ml-2">{video.total_views || 0}</span>
         </div>
         <div>
           <span className="text-gray-500">Разрешение:</span>

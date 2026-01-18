@@ -116,15 +116,14 @@ const LeakDetection = () => {
       {/* Upload and Analysis Section */}
       <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
         <h2 className="text-xl font-bold text-gray-900 mb-4">Анализ видео</h2>
-        
+
         {!file ? (
           <div
             {...getRootProps()}
-            className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors ${
-              isDragActive
+            className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors ${isDragActive
                 ? 'border-red-500 bg-red-50'
                 : 'border-gray-300 hover:border-red-400 hover:bg-gray-50'
-            }`}
+              }`}
           >
             <input {...getInputProps()} />
             <FiUpload className="w-16 h-16 mx-auto text-gray-400 mb-4" />
@@ -181,25 +180,39 @@ const LeakDetection = () => {
                   <FiCheck className="w-6 h-6 text-green-600" />
                   <h3 className="text-lg font-bold text-green-900">Утечка обнаружена!</h3>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <p className="text-sm text-gray-600">Подозреваемый:</p>
-                    <p className="font-bold text-gray-900">{result.suspected_user.full_name}</p>
-                    <p className="text-sm text-gray-500">{result.suspected_user.email}</p>
+                    <p className="text-sm text-gray-600">ID водяного знака (Код):</p>
+                    <p className="font-mono font-bold text-2xl text-red-600">{result.leak_report ? result.leak_report.watermark_id : result.watermark_id}</p>
                   </div>
+
+                  <div>
+                    <p className="text-sm text-gray-600">Подозреваемый:</p>
+                    {result.suspected_user ? (
+                      <>
+                        <p className="font-bold text-gray-900">{result.suspected_user.full_name}</p>
+                        <p className="text-sm text-gray-500">{result.suspected_user.email}</p>
+                        <p className="text-xs text-gray-400">ID: {result.suspected_user.id}</p>
+                      </>
+                    ) : (
+                      <p className="font-bold text-red-600">Пользователь не найден в БД</p>
+                    )}
+                  </div>
+
                   <div>
                     <p className="text-sm text-gray-600">Видео:</p>
-                    <p className="font-bold text-gray-900">{result.video.title}</p>
+                    {result.video ? (
+                      <p className="font-bold text-gray-900">{result.video.title}</p>
+                    ) : (
+                      <p className="text-gray-500 italic">Информация о видео удалена</p>
+                    )}
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600">ID водяного знака:</p>
-                    <p className="font-mono font-bold text-gray-900">{result.leak_report.watermark_id}</p>
-                  </div>
+
                   <div>
                     <p className="text-sm text-gray-600">Метод обнаружения:</p>
                     <p className="font-bold text-gray-900 capitalize">
-                      {result.leak_report.detection_method === 'manual' ? 'Ручной' : result.leak_report.detection_method}
+                      {result.leak_report?.detection_method === 'manual' ? 'Ручной' : (result.leak_report?.detection_method || 'N/A')}
                     </p>
                   </div>
                 </div>
@@ -223,8 +236,8 @@ const LeakDetection = () => {
                       <div className="col-span-2">
                         <span className="text-gray-600">Уверенность:</span>
                         <span className="ml-2 font-semibold">
-                          {result.extraction_details.confidence === 'high' ? 'Высокая' : 
-                           result.extraction_details.confidence === 'medium' ? 'Средняя' : 'Низкая'}
+                          {result.extraction_details.confidence === 'high' ? 'Высокая' :
+                            result.extraction_details.confidence === 'medium' ? 'Средняя' : 'Низкая'}
                         </span>
                       </div>
                     </div>
@@ -239,7 +252,7 @@ const LeakDetection = () => {
       {/* Leak Reports Table */}
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-4">Отчёты об утечках</h2>
-        
+
         {loading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>

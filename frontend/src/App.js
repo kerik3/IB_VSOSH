@@ -12,6 +12,7 @@ import VideoList from './components/VideoList';
 import VideoUpload from './components/VideoUpload';
 import VideoPlayer from './components/VideoPlayer';
 import VideoAccessManagement from './components/VideoAccessManagement';
+import VideoEdit from './components/VideoEdit';
 import LeakDetection from './components/LeakDetection';
 import UserManagement from './components/UserManagement';
 
@@ -119,6 +120,15 @@ function App() {
             />
 
             <Route
+              path="/videos/:id/edit"
+              element={
+                <ProtectedRoute roles={['teacher', 'admin']}>
+                  <VideoEdit />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
               path="/videos/:id/view"
               element={
                 <ProtectedRoute>
@@ -139,7 +149,7 @@ function App() {
             <Route
               path="/users"
               element={
-                <ProtectedRoute roles={['admin']}>
+                <ProtectedRoute roles={['admin', 'teacher']}>
                   <UserManagement />
                 </ProtectedRoute>
               }

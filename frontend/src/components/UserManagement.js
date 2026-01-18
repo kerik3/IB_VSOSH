@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { userAPI } from '../services/api';
 import { toast } from 'react-toastify';
 import { FiUsers, FiShield, FiAlertCircle } from 'react-icons/fi';
 
 const UserManagement = () => {
+  const { isAdmin } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -102,8 +104,8 @@ const UserManagement = () => {
               key={role}
               onClick={() => setFilter(role)}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${filter === role
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-primary-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
               {getFilterLabel(role)}
@@ -118,20 +120,20 @@ const UserManagement = () => {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700">ID</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-700">Код</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-700">Имя</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-700">Логин</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-700">Email</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-700">Роль</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-700">Статус</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-700">Регистрация</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700">Действия</th>
+                {isAdmin && <th className="text-left py-4 px-6 font-semibold text-gray-700">Действия</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {users.map((user) => (
                 <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="py-4 px-6 font-mono text-sm">#{user.id}</td>
+                  <td className="py-4 px-6 font-mono text-sm font-bold text-primary-600">{user.id}</td>
                   <td className="py-4 px-6">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center">
@@ -167,25 +169,27 @@ const UserManagement = () => {
                   <td className="py-4 px-6 text-sm text-gray-600">
                     {new Date(user.created_at).toLocaleDateString('ru-RU')}
                   </td>
-                  <td className="py-4 px-6">
-                    {user.is_banned ? (
-                      <button
-                        onClick={() => handleUnban(user.id, user.full_name)}
-                        className="px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors"
-                      >
-                        Разблокировать
-                      </button>
-                    ) : user.role !== 'admin' ? (
-                      <button
-                        onClick={() => handleBan(user.id, user.full_name)}
-                        className="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
-                      >
-                        Заблокировать
-                      </button>
-                    ) : (
-                      <span className="text-gray-400 text-sm">Защищён</span>
-                    )}
-                  </td>
+                  {isAdmin && (
+                    <td className="py-4 px-6">
+                      {user.is_banned ? (
+                        <button
+                          onClick={() => handleUnban(user.id, user.full_name)}
+                          className="px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors"
+                        >
+                          Разблокировать
+                        </button>
+                      ) : user.role !== 'admin' ? (
+                        <button
+                          onClick={() => handleBan(user.id, user.full_name)}
+                          className="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
+                        >
+                          Заблокировать
+                        </button>
+                      ) : (
+                        <span className="text-gray-400 text-sm">Защищён</span>
+                      )}
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

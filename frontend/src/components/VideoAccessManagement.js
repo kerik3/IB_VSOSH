@@ -30,7 +30,7 @@ const VideoAccessManagement = () => {
             ]);
 
             setVideo(videoRes.data.video);
-            setAccessList(accessRes.data.access_list || []);
+            setAccessList(accessRes.data.access_grants || []);
             setStudents(studentsRes.data.users);
 
         } catch (error) {
@@ -52,7 +52,7 @@ const VideoAccessManagement = () => {
             setSelectedStudents([]);
             // Refresh access list
             const accessRes = await accessAPI.getVideoAccess(id);
-            setAccessList(accessRes.data.access_list || []);
+            setAccessList(accessRes.data.access_grants || []);
         } catch (error) {
             console.error('Error granting access:', error);
             toast.error('Ошибка предоставления доступа');
@@ -69,7 +69,7 @@ const VideoAccessManagement = () => {
             toast.success('Доступ закрыт');
             // Refresh access list
             const accessRes = await accessAPI.getVideoAccess(id);
-            setAccessList(accessRes.data.access_list || []);
+            setAccessList(accessRes.data.access_grants || []);
         } catch (error) {
             console.error('Error revoking access:', error);
             toast.error('Ошибка отмены доступа');
@@ -160,17 +160,22 @@ const VideoAccessManagement = () => {
                                     key={student.id}
                                     onClick={() => toggleStudentSelection(student.id)}
                                     className={`flex items-center justify-between p-3 rounded-lg cursor-pointer border transition-all ${selectedStudents.includes(student.id)
-                                            ? 'bg-primary-50 border-primary-200 ring-1 ring-primary-500'
-                                            : 'bg-gray-50 border-transparent hover:bg-gray-100'
+                                        ? 'bg-primary-50 border-primary-200 ring-1 ring-primary-500'
+                                        : 'bg-gray-50 border-transparent hover:bg-gray-100'
                                         }`}
                                 >
                                     <div>
-                                        <p className="font-medium text-gray-900">{student.full_name || student.username}</p>
+                                        <div className="flex items-center gap-2">
+                                            <p className="font-medium text-gray-900">{student.full_name || student.username}</p>
+                                            <span className="text-xs font-mono font-bold text-primary-600 bg-primary-50 px-2 py-0.5 rounded">
+                                                {student.id}
+                                            </span>
+                                        </div>
                                         <p className="text-sm text-gray-500">{student.email}</p>
                                     </div>
                                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${selectedStudents.includes(student.id)
-                                            ? 'bg-primary-600 border-primary-600'
-                                            : 'border-gray-300'
+                                        ? 'bg-primary-600 border-primary-600'
+                                        : 'border-gray-300'
                                         }`}>
                                         {selectedStudents.includes(student.id) && <FiCheck className="text-white w-4 h-4" />}
                                     </div>
@@ -199,7 +204,12 @@ const VideoAccessManagement = () => {
                                     className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-shadow"
                                 >
                                     <div>
-                                        <p className="font-medium text-gray-900">{item.student_name || item.student_username}</p>
+                                        <div className="flex items-center gap-2">
+                                            <p className="font-medium text-gray-900">{item.student_name || item.student_username}</p>
+                                            <span className="text-xs font-mono font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded">
+                                                {item.student_id}
+                                            </span>
+                                        </div>
                                         <div className="flex items-center gap-2 text-sm text-gray-500">
                                             <span>Выдан: {new Date(item.granted_at).toLocaleDateString()}</span>
                                         </div>
